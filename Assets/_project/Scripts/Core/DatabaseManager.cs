@@ -13,7 +13,6 @@ public class DatabaseManager : MonoBehaviour
 
     void LoadFoodDataFromCSV()
     {
-        // 1. Membaca file CSV dari folder Resources
         TextAsset csvFile = Resources.Load<TextAsset>("Data/FoodData");
         
         if (csvFile == null)
@@ -22,36 +21,50 @@ public class DatabaseManager : MonoBehaviour
             return;
         }
 
-        // 2. Memecah teks menjadi baris-baris (split berdasarkan Enter / baris baru)
         string[] lines = csvFile.text.Split(new char[] { '\n' });
 
-        // 3. Looping setiap baris (mulai dari i=1 untuk melewati baris Header)
         for (int i = 1; i < lines.Length; i++)
         {
-            if (string.IsNullOrWhiteSpace(lines[i])) continue; // Lewati baris kosong
+            if (string.IsNullOrWhiteSpace(lines[i])) continue; 
 
-            string[] columns = lines[i].Split(','); // Pecah baris berdasarkan koma
+            string[] columns = lines[i].Split(','); 
 
-            if (columns.Length >= 5) // Pastikan ada 5 kolom sesuai data kita
+            // Kita punya 8 kolom sekarang (index 0 sampai 7)
+            if (columns.Length >= 8) 
             {
                 FoodData newFood = new FoodData();
+                
+                // 1. Ambil data Teks (String)
                 newFood.id = columns[0].Trim();
                 newFood.foodName = columns[1].Trim();
-                newFood.description = columns[2].Trim();
                 
-                // Mengubah teks angka menjadi tipe float
-                float.TryParse(columns[3], out newFood.nutrition);
-                float.TryParse(columns[4], out newFood.taste);
+                // 2. Konversi Teks menjadi ENUM (Abaikan besar/kecil huruf dengan nilai 'true')
+                System.Enum.TryParse(columns[2].Trim(), true, out newFood.type);
+                System.Enum.TryParse(columns[3].Trim(), true, out newFood.tipeGizi);
+                System.Enum.TryParse(columns[4].Trim(), true, out newFood.profilRasa);
+                
+                // 3. Konversi Teks menjadi Angka (Float)
+                float.TryParse(columns[5].Trim(), out newFood.nutrition);
+                float.TryParse(columns[6].Trim(), out newFood.baseAppeal);
+                
+                // 4. Ambil Deskripsi
+                newFood.description = columns[7].Trim();
 
                 // Masukkan ke dalam kamus (Dictionary)
                 FoodDatabase.Add(newFood.id, newFood);
             }
+            else
+            {
+                Debug.LogWarning($"Baris ke-{i} di CSV memiliki format yang salah atau kolom kurang!");
+            }
         }
 
-        Debug.Log($"Database Loaded! Total Makanan: {FoodDatabase.Count}");
+        Debug.Log($"Database Sukses Dimuat! Total Makanan: {FoodDatabase.Count}");
+        
+        // (Opsional) Cek di Console apakah data masuk dengan benar
+        // Debug.Log("Contoh: " + FoodDatabase["itm_dragon"].foodName + " punya gizi " + FoodDatabase["itm_dragon"].tipeGizi);
     }
     
-    // Fungsi untuk memanggil data dari script lain dengan mudah
     public FoodData GetFoodByID(string foodID)
     {
         if (FoodDatabase.ContainsKey(foodID))
