@@ -1,9 +1,9 @@
-id,foodName,type,tipeGizi,profilRasa,nutrition,baseAppeal,description
-itm_mandrake,Rebusan Akar Mandrake,Utama,Konsentrasi,Sehat,95,10,Sangat bagus untuk otak tapi rasanya seperti lumpur.
-itm_dragon,Steak Naga Panggang,Utama,Stamina,Gurih,80,75,Daging tebal pengisi tenaga favorit prajurit.
-itm_griffin,Omelet Telur Griffin,Utama,Stamina,Gurih,60,85,Lembut dan lezat sarapan juara bertahan.
-itm_fish,Ikan Sungai Perak Bakar,Utama,Konsentrasi,Gurih,70,60,Kaya omega ajaib untuk fokus belajar.
-itm_fairy,Roti Manis Peri,Lauk,Netral,Manis,5,95,Murni gula sihir kesukaan semua orang.
-itm_glowshroom,Salad Jamur Bercahaya,Lauk,Konsentrasi,Sehat,30,20,Segar tapi rasanya agak aneh di lidah.
-itm_hellfire,Saus Cabai Neraka,Lauk,Stamina,Pedas,15,65,Membakar lidah dan memompa darah dengan cepat.
-itm_pudding,Puding Lendir Slime,Lauk,Netral,Manis,10,80,Kenyal manis dan sangat menyenangkan dimakan.
+id,foodName,type,tipeGizi,profilRasa,nutrition,baseAppeal,description,width,height
+itm_mandrake,Rebusan Akar Mandrake,Utama,Konsentrasi,Sehat,95,10,Sangat bagus untuk otak.,1,2
+itm_dragon,Steak Naga Panggang,Utama,Stamina,Gurih,80,75,Daging tebal pengisi tenaga.,2,2
+itm_griffin,Omelet Telur Griffin,Utama,Stamina,Gurih,60,85,Lembut dan lezat sarapan juara.,2,1
+itm_fairy,Roti Manis Peri,Lauk,Netral,Manis,5,95,Murni gula sihir kesukaan.,1,1
+itm_hellfire,Saus Cabai Neraka,Lauk,Stamina,Pedas,15,65,Membakar lidah dan darah.,1,1
+itm_fish,Ikan Sungai Perak Bakar,Utama,Konsentrasi,Gurih,70,60,Kaya omega ajaib untuk fokus belajar.,1,2
+itm_glowshroom,Salad Jamur Bercahaya,Lauk,Konsentrasi,Sehat,30,20,Segar tapi rasanya agak aneh di lidah.,1,1
+itm_pudding,Puding Lendir Slime,Lauk,Netral,Manis,10,80,Kenyal manis dan sangat menyenangkan dimakan.,1,1

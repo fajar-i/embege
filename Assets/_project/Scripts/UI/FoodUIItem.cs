@@ -45,11 +45,9 @@ public class FoodUIItem : MonoBehaviour
     {
         if (isOnPlate)
         {
-            manager.RemoveFromPlate(this);
         }
         else
         {
-            manager.AddToPlate(myFoodData);
         }
     }
 }

@@ -14,7 +14,7 @@ public class DatabaseManager : MonoBehaviour
     void LoadFoodDataFromCSV()
     {
         TextAsset csvFile = Resources.Load<TextAsset>("Data/FoodData");
-        
+
         if (csvFile == null)
         {
             Debug.LogError("File FoodData.csv tidak ditemukan di folder Resources/Data!");
@@ -25,30 +25,33 @@ public class DatabaseManager : MonoBehaviour
 
         for (int i = 1; i < lines.Length; i++)
         {
-            if (string.IsNullOrWhiteSpace(lines[i])) continue; 
+            if (string.IsNullOrWhiteSpace(lines[i])) continue;
 
-            string[] columns = lines[i].Split(','); 
+            string[] columns = lines[i].Split(',');
 
-            // Kita punya 8 kolom sekarang (index 0 sampai 7)
-            if (columns.Length >= 8) 
+            if (columns.Length >= 10) // Sekarang ada 10 kolom!
             {
                 FoodData newFood = new FoodData();
-                
+
                 // 1. Ambil data Teks (String)
                 newFood.id = columns[0].Trim();
                 newFood.foodName = columns[1].Trim();
-                
+
                 // 2. Konversi Teks menjadi ENUM (Abaikan besar/kecil huruf dengan nilai 'true')
                 System.Enum.TryParse(columns[2].Trim(), true, out newFood.type);
                 System.Enum.TryParse(columns[3].Trim(), true, out newFood.tipeGizi);
                 System.Enum.TryParse(columns[4].Trim(), true, out newFood.profilRasa);
-                
+
                 // 3. Konversi Teks menjadi Angka (Float)
                 float.TryParse(columns[5].Trim(), out newFood.nutrition);
                 float.TryParse(columns[6].Trim(), out newFood.baseAppeal);
-                
+
                 // 4. Ambil Deskripsi
                 newFood.description = columns[7].Trim();
+
+                // 5. Ukuran grid di piring
+                int.TryParse(columns[8].Trim(), out newFood.gridWidth);
+                int.TryParse(columns[9].Trim(), out newFood.gridHeight);
 
                 // Masukkan ke dalam kamus (Dictionary)
                 FoodDatabase.Add(newFood.id, newFood);
@@ -60,11 +63,11 @@ public class DatabaseManager : MonoBehaviour
         }
 
         Debug.Log($"Database Sukses Dimuat! Total Makanan: {FoodDatabase.Count}");
-        
+
         // (Opsional) Cek di Console apakah data masuk dengan benar
         // Debug.Log("Contoh: " + FoodDatabase["itm_dragon"].foodName + " punya gizi " + FoodDatabase["itm_dragon"].tipeGizi);
     }
-    
+
     public FoodData GetFoodByID(string foodID)
     {
         if (FoodDatabase.ContainsKey(foodID))
