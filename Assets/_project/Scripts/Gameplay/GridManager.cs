@@ -54,4 +54,23 @@ public class GridManager : MonoBehaviour
             }
         }
     }
+    // Cek objek apa yang ada di koordinat ini
+    public PlacedObject GetPlacedObjectAt(int x, int y)
+    {
+        if (IsValidGridPosition(x, y)) return gridArray[x, y];
+        return null;
+    }
+
+    // Bersihkan data grid saat objek dihancurkan
+    public void ClearGrid(PlacedObject placedObject)
+    {
+        Vector2Int size = placedObject.UtilityData.GetRotatedSize(placedObject.Direction);
+        for (int i = 0; i < size.x; i++)
+        {
+            for (int j = 0; j < size.y; j++)
+            {
+                gridArray[placedObject.GridOrigin.x + i, placedObject.GridOrigin.y + j] = null;
+            }
+        }
+    }
 }

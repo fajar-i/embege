@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KitchenUtilityData
   id: UTL_COMP_01
   utilityName: Kompor
-  prefab: {fileID: 2575011436954020243, guid: af94534603cf6284eafdee4458466c17, type: 3}
-  ghostPrefab: {fileID: 2575011436954020243, guid: 3351c37e3a9ee92499a90f2af307e938, type: 3}
+  prefab: {fileID: 5969589511561545794, guid: e3986fc57bbdbb64598b313bf16c4adf, type: 3}
+  ghostPrefab: {fileID: 5969589511561545794, guid: 59c0c7ff28e647848aae6d49bdb14cfc, type: 3}
   width: 1
   height: 2

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KitchenUtilityData
   id: UTL_PLAT_01
   utilityName: Meja Plating
-  prefab: {fileID: 7657878862900975069, guid: 01d208d658011ce48b5c947b9117dd8a, type: 3}
-  ghostPrefab: {fileID: 7657878862900975069, guid: c2e6ec23e247db04190ef3f12452f2ca, type: 3}
+  prefab: {fileID: 5969589511561545794, guid: 50f613f76a6c7954a816d77aab489a9d, type: 3}
+  ghostPrefab: {fileID: 5969589511561545794, guid: c2973280d7bb5944894423ac8bdb790f, type: 3}
   width: 2
   height: 2

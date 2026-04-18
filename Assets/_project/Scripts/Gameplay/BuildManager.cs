@@ -1,69 +1,109 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
 public class BuildManager : MonoBehaviour
 {
+    public static BuildManager Instance { get; private set; }
+
+    [Header("Ghost Colors")]
+    public Color validColor = new Color(0, 1, 0, 0.5f);
+    public Color invalidColor = new Color(1, 0, 0, 0.5f);
+    private MeshRenderer[] ghostRenderers;
+    private bool isDeleteMode = false;
     private KitchenUtilityData currentSelectedData;
     private UtilityDirection currentDir = UtilityDirection.Down;
 
     private GameObject ghostInstance;
     private Camera mainCam;
-    private Plane groundPlane; // Virtual plane di Y=0 untuk raycast mouse
+    private Plane groundPlane;
 
+    private void Awake() => Instance = this;
     private void Start()
     {
         mainCam = Camera.main;
         groundPlane = new Plane(Vector3.up, Vector3.zero);
     }
-    // HAPUS INI NANTI, hanya untuk test tanpa UI
-    [SerializeField] private KitchenUtilityData testUtility;
-    private void LateUpdate()
-    {
-        if (Keyboard.current.spaceKey.wasPressedThisFrame) SelectUtility(testUtility);
-    }
 
     private void Update()
     {
-        LateUpdate();
+        if (Keyboard.current.xKey.wasPressedThisFrame) ToggleDeleteMode();
+
+        if (isDeleteMode)
+        {
+            HandleDeletion();
+            return;
+        }
+
         if (currentSelectedData == null) return;
 
         HandleGhostAndPlacement();
         HandleRotation();
     }
 
-    // Dipanggil oleh UI Button (Nanti)
     public void SelectUtility(KitchenUtilityData data)
     {
+        isDeleteMode = false;
         currentSelectedData = data;
         currentDir = UtilityDirection.Down;
 
         if (ghostInstance != null) Destroy(ghostInstance);
         ghostInstance = Instantiate(data.ghostPrefab);
+        ghostRenderers = ghostInstance.GetComponentsInChildren<MeshRenderer>();
     }
 
     private void HandleGhostAndPlacement()
     {
-        Vector3 mouseWorldPosition = GetMouseWorldPosition();
-        GridManager.Instance.GetXY(mouseWorldPosition, out int x, out int y);
+        Vector3 mousePos = GetMouseWorldPosition();
+        GridManager.Instance.GetXY(mousePos, out int x, out int y);
 
-        // Snap Ghost ke Grid
+        // --- BAGIAN YANG DIPERBAIKI ---
+        // 1. Dapatkan posisi awal grid
         Vector3 snapPos = GridManager.Instance.GetWorldPosition(x, y);
-        ghostInstance.transform.position = snapPos;
-        ghostInstance.transform.rotation = GetRotationFromDirection(currentDir);
+        // 2. Tambahkan offset berdasarkan rotasi agar visual tetap di dalam batas logika
+        Vector3 offsetPos = snapPos + GetRotationOffset(currentSelectedData, currentDir);
 
-        // Visual Feedback (Opsional: Ubah warna material ghost jika tidak valid)
+        ghostInstance.transform.position = offsetPos;
+        ghostInstance.transform.rotation = GetRotationFromDirection(currentDir);
+        // ------------------------------
+
         bool canPlace = GridManager.Instance.CanPlaceObject(x, y, currentSelectedData, currentDir);
 
-        // Klik Kiri untuk Membangun
-        if (Mouse.current.leftButton.wasPressedThisFrame && canPlace)
+        Color targetColor = canPlace ? validColor : invalidColor;
+        foreach (var r in ghostRenderers) r.material.color = targetColor;
+
+        if (EventSystem.current.IsPointerOverGameObject()) return;
+
+        // Klik Kiri (Kirim offsetPos, bukan snapPos biasa)
+        if (Mouse.current.leftButton.wasPressedThisFrame && canPlace) 
         {
-            PlaceUtility(x, y, snapPos);
+            PlaceUtility(x, y, offsetPos);
         }
 
-        // Klik Kanan untuk Batal Build
-        if (Mouse.current.rightButton.wasPressedThisFrame)
+        // Klik Kanan
+        if (Mouse.current.rightButton.wasPressedThisFrame) DeselectUtility();
+    }
+
+    private void ToggleDeleteMode()
+    {
+        isDeleteMode = !isDeleteMode;
+        DeselectUtility();
+        Debug.Log("Delete Mode: " + isDeleteMode);
+    }
+
+    private void HandleDeletion()
+    {
+        if (Mouse.current.leftButton.wasPressedThisFrame && !EventSystem.current.IsPointerOverGameObject())
         {
-            DeselectUtility();
+            Vector3 mousePos = GetMouseWorldPosition();
+            GridManager.Instance.GetXY(mousePos, out int x, out int y);
+
+            PlacedObject objToDestroy = GridManager.Instance.GetPlacedObjectAt(x, y);
+            if (objToDestroy != null)
+            {
+                GridManager.Instance.ClearGrid(objToDestroy);
+                objToDestroy.Demolish();
+            }
         }
     }
 
@@ -80,7 +120,6 @@ public class BuildManager : MonoBehaviour
     {
         if (Keyboard.current.rKey.wasPressedThisFrame)
         {
-            // Putar enumerator searah jarum jam
             currentDir = (UtilityDirection)(((int)currentDir + 1) % 4);
         }
     }
@@ -91,7 +130,6 @@ public class BuildManager : MonoBehaviour
         if (ghostInstance != null) Destroy(ghostInstance);
     }
 
-    // Helper: Hitung rotasi visual (Pivot Bottom-Left)
     private Quaternion GetRotationFromDirection(UtilityDirection dir)
     {
         return dir switch
@@ -104,7 +142,24 @@ public class BuildManager : MonoBehaviour
         };
     }
 
-    // Helper: Cari posisi mouse presisi di lantai Y=0
+   // --- FUNGSI YANG DIPERBAIKI ---
+    private Vector3 GetRotationOffset(KitchenUtilityData data, UtilityDirection dir)
+    {
+        float cellSize = GridManager.Instance.GetCellSize(); 
+
+        return dir switch
+        {
+            UtilityDirection.Down => new Vector3(0, 0, 0),
+            // Didorong ke atas (sumbu Z) sebesar Width
+            UtilityDirection.Left => new Vector3(0, 0, data.width * cellSize), 
+            // Didorong ke kanan dan ke atas sebesar Width & Height
+            UtilityDirection.Up => new Vector3(data.width * cellSize, 0, data.height * cellSize),
+            // Didorong ke kanan (sumbu X) sebesar Height
+            UtilityDirection.Right => new Vector3(data.height * cellSize, 0, 0), 
+            _ => Vector3.zero
+        };
+    }
+
     private Vector3 GetMouseWorldPosition()
     {
         Ray ray = mainCam.ScreenPointToRay(Mouse.current.position.ReadValue());

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KitchenUtilityData
   id: UTL_SINK_01
   utilityName: Wastafel
-  prefab: {fileID: 7657878862900975069, guid: e978da10a9e6f7848b941625d2e3e774, type: 3}
-  ghostPrefab: {fileID: 7657878862900975069, guid: 5941f8ed94e336044950bcccf742efe4, type: 3}
+  prefab: {fileID: 5969589511561545794, guid: 3968f77cc418933428734f51fc752865, type: 3}
+  ghostPrefab: {fileID: 5969589511561545794, guid: 22e798c2718960146b6bb54399064bf6, type: 3}
   width: 1
   height: 1

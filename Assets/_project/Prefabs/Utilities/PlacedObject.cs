@@ -8,19 +8,19 @@ public class PlacedObject : MonoBehaviour
     public KitchenUtilityData UtilityData { get; private set; }
     
     // Data dinamis spesifik untuk instance ini.
-    private Vector2Int gridOrigin;
-    private UtilityDirection direction;
+    public Vector2Int GridOrigin { get; set; }
+    public UtilityDirection Direction { get; set; }
 
     // Helper untuk mendapatkan semua sel grid yang ditempati objek ini.
     public List<Vector2Int> GetGridPositions()
     {
-        Vector2Int size = UtilityData.GetRotatedSize(direction);
+        Vector2Int size = UtilityData.GetRotatedSize(Direction);
         List<Vector2Int> positions = new List<Vector2Int>();
         for (int x = 0; x < size.x; x++)
         {
             for (int y = 0; y < size.y; y++)
             {
-                positions.Add(gridOrigin + new Vector2Int(x, y));
+                positions.Add(GridOrigin + new Vector2Int(x, y));
             }
         }
         return positions;
@@ -30,8 +30,8 @@ public class PlacedObject : MonoBehaviour
     public void Setup(KitchenUtilityData utilityData, Vector2Int origin, UtilityDirection dir)
     {
         this.UtilityData = utilityData;
-        this.gridOrigin = origin;
-        this.direction = dir;
+        this.GridOrigin = origin;
+        this.Direction = dir;
     }
 
     // Fungsi untuk menghancurkan objek dan membersihkan referensi.
