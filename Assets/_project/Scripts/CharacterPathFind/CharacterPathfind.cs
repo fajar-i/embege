@@ -1,82 +1,24 @@
-//using UnityEngine;
-//using UnityEngine.AI;
-//using UnityEngine.InputSystem;
-
-//public class CharacterPathfind : MonoBehaviour
-//{
-//    public Camera cam;
-//    public NavMeshAgent agent;
-//    public Animator animator;
-
-//    void Start()
-//    {
-//        agent.updatePosition = false;
-//        agent.updateRotation = false;
-//    }
-
-//    void Update()
-//    {
-//        HandleInput();
-//        UpdateAnimation();
-//        RotateCharacter();
-//    }
-
-//    void HandleInput()
-//    {
-//        if (Mouse.current.leftButton.wasPressedThisFrame)
-//        {
-//            Ray ray = cam.ScreenPointToRay(Mouse.current.position.ReadValue());
-//            RaycastHit hit;
-
-//            if (Physics.Raycast(ray, out hit))
-//            {
-//                agent.SetDestination(hit.point);
-//            }
-//        }
-//    }
-
-//    void UpdateAnimation()
-//    {
-//        float speed = agent.velocity.magnitude / agent.speed;
-//        animator.SetFloat("Speed", speed);
-//    }
-
-//    void RotateCharacter()
-//    {
-//        if (agent.velocity.magnitude > 0.1f)
-//        {
-//            Quaternion rot = Quaternion.LookRotation(agent.velocity);
-//            transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * 10);
-//        }
-//    }
-
-//    void OnAnimatorMove()
-//    {
-//        //// Gerakan murni dari animasi
-//        //transform.position += animator.deltaPosition;
-
-//        //// Sinkronkan ke NavMesh
-//        //agent.nextPosition = transform.position;
-
-//        transform.position = agent.nextPosition;
-//    }
-//}
-
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.InputSystem;
 
 public class CharacterPathfind : MonoBehaviour
 {
+    [Header("References")]
     public Camera cam;
     public NavMeshAgent agent;
     public Animator animator;
 
-    Vector3 targetPosition;
-    bool hasTarget = false;
+    [Header("Settings")]
+    [SerializeField] float rotationSpeed = 10f;
+    [SerializeField] float stopDistanceThreshold = 0.3f;
+
+    private Vector3 targetPosition;
+    private bool hasTarget = false;
 
     void Start()
     {
+        // Mematikan kontrol otomatis agar bisa dikontrol lewat OnAnimatorMove (Root Motion)
         agent.updatePosition = false;
         agent.updateRotation = false;
     }
@@ -84,8 +26,7 @@ public class CharacterPathfind : MonoBehaviour
     void Update()
     {
         HandleInput();
-        HandleStopping();
-        UpdateAnimation();
+        UpdateAnimationAndStatus();
         RotateCharacter();
     }
 
@@ -94,73 +35,56 @@ public class CharacterPathfind : MonoBehaviour
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
             Ray ray = cam.ScreenPointToRay(Mouse.current.position.ReadValue());
-            RaycastHit hit;
-
-            if (Physics.Raycast(ray, out hit))
+            if (Physics.Raycast(ray, out var hit))
             {
                 agent.SetDestination(hit.point);
-
                 targetPosition = hit.point;
                 hasTarget = true;
             }
         }
     }
 
-    void UpdateAnimation()
+    void UpdateAnimationAndStatus()
     {
-        if (!agent.hasPath)
+        if (!hasTarget) return;
+
+        // Cek apakah sudah sampai tujuan secara manual (karena updatePosition = false)
+        float distance = Vector3.Distance(transform.position, targetPosition);
+        
+        if (distance < stopDistanceThreshold)
         {
-            animator.SetFloat("Speed", 0, 0.1f, Time.deltaTime);
-            return;
+            StopCharacter();
         }
-
-        float distance = agent.remainingDistance;
-
-        if (distance <= agent.stoppingDistance)
+        else
         {
-            animator.SetFloat("Speed", 0, 0.1f, Time.deltaTime);
-            return;
+            // Mengatur parameter Speed berdasarkan kecepatan agent yang diinginkan
+            float speed = Mathf.Clamp01(agent.desiredVelocity.magnitude);
+            animator.SetFloat("Speed", speed, 0.1f, Time.deltaTime);
         }
-
-        Vector3 direction = agent.desiredVelocity;
-        float speed = Mathf.Clamp01(direction.magnitude);
-
-        animator.SetFloat("Speed", speed, 0.1f, Time.deltaTime);
     }
 
     void RotateCharacter()
     {
-        if (!hasTarget) return;
+        if (!hasTarget || agent.desiredVelocity.sqrMagnitude < 0.1f) return;
 
-        Vector3 direction = agent.desiredVelocity;
-
-        if (direction.magnitude > 0.1f)
-        {
-            Quaternion rot = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * 10);
-        }
+        Quaternion lookRotation = Quaternion.LookRotation(agent.desiredVelocity);
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
     }
 
     void OnAnimatorMove()
     {
-        if (!hasTarget) return;
-
-        transform.position += animator.deltaPosition;
-        agent.nextPosition = transform.position;
+        // Menyinkronkan posisi transform dengan delta animasi
+        if (hasTarget)
+        {
+            transform.position += animator.deltaPosition;
+            agent.nextPosition = transform.position; // Penting: agar NavMesh Agent tetap sinkron dengan model
+        }
     }
 
-    void HandleStopping()
+    private void StopCharacter()
     {
-        if (!hasTarget) return;
-
-        float distance = Vector3.Distance(transform.position, targetPosition);
-
-        if (distance < 0.3f) // bisa kamu adjust (0.15 - 0.3)
-        {
-            hasTarget = false;
-            agent.ResetPath();
-
-            animator.SetFloat("Speed", 0, 0.1f, Time.deltaTime);
-        }
+        hasTarget = false;
+        agent.ResetPath();
+        animator.SetFloat("Speed", 0, 0.1f, Time.deltaTime);
     }
 }
