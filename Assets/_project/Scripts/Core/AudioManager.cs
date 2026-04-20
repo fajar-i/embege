@@ -47,7 +47,7 @@ public class AudioManager : MonoBehaviour
     {
         Debug.Log("SFX Played");
         SoundData sfx = System.Array.Find(sfxList, s => s.soundName == soundName);
-        
+
         if (sfx == null || sfx.clip == null)
         {
             Debug.LogWarning("SFX: " + soundName + " tidak ditemukan!");
@@ -60,7 +60,11 @@ public class AudioManager : MonoBehaviour
 
         tempSource.clip = sfx.clip;
         tempSource.volume = sfx.volume;
+        // Ambil nilai volume SFX (0.0 sampai 1.0) dari SaveManager
+        float masterSFXVolume = SaveManager.Instance.currentData.sfxVolume;
 
+        // Kalikan volume dasar dengan master volume
+        tempSource.volume = sfx.volume * masterSFXVolume;
         // FITUR UTAMA ANDA: Pitch Randomizer
         if (randomizePitch)
         {
@@ -83,7 +87,7 @@ public class AudioManager : MonoBehaviour
         if (bgm == null || bgm.clip == null) return;
 
         // Jika musik yang sama sudah diputar, jangan diputar ulang dari awal
-        if (bgmSource.clip == bgm.clip) return; 
+        if (bgmSource.clip == bgm.clip) return;
 
         bgmSource.clip = bgm.clip;
         bgmSource.volume = bgm.volume;

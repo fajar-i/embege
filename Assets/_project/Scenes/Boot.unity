@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 114272248}
   - component: {fileID: 114272251}
   - component: {fileID: 114272250}
+  - component: {fileID: 114272252}
   m_Layer: 0
   m_Name: '[SYSTEM_PERSISTENT]'
   m_TagString: Untagged
@@ -285,6 +286,21 @@ MonoBehaviour:
     volume: 1
   minPitch: 0.85
   maxPitch: 1.15
+--- !u!114 &114272252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 114272247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b02eadabfa1b6f42b44d0968b891ce9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveManager
+  currentData:
+    bgmVolume: 1
+    sfxVolume: 1
 --- !u!1 &1282462264
 GameObject:
   m_ObjectHideFlags: 0
